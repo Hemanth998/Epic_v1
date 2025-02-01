@@ -1,4 +1,5 @@
 import express from 'express';
+import pg from 'pg';
 
 const app = express();
 
@@ -10,23 +11,19 @@ app.listen(3000, () => {
   console.log('Server started on port 3000');
 });
 
-app.get('/projects', (req, res) => {
-  const projects = [
-    {
-      id: 1,
-      title: 'A todo list',
-      description: "Hey, It's a good old todo list",
-      details:
-        'A todo list is an application where user can list his/her tasks, mark them as in progress or complete',
-    },
-    {
-      id: 2,
-      title: 'A Travellers forum',
-      description: "Hey, It's a forum application for Travellors",
-      details:
-        'Users can share their travel experiences and engage with other travellors and the discussions',
-    },
-  ];
+const { Pool } = pg;
+
+const pool = new Pool({
+  user: 'postgres',
+  password: 'epicGTApg',
+  host: 'localhost',
+  port: 5433,
+  database: 'epic',
+});
+
+app.get('/projects', async (req, res) => {
+  const projects = (await pool.query('Select * from projects')).rows;
+
   res.header('Content-Type', 'application/json');
   res.status(200).json(projects);
 });
